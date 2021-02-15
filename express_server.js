@@ -2,6 +2,7 @@ const express = require('express');
 const app = express();
 const PORT = 8080;
 const bodyParser = require("body-parser");
+const { generateRandomString } = require('./generate-random-string');
 
 
 app.use(bodyParser.urlencoded({extended: true}));
