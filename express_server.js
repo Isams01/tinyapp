@@ -2,6 +2,7 @@ const express = require('express');
 const app = express();
 const PORT = 8080;
 const bodyParser = require("body-parser");
+const cookieParser = require('cookie-parser');
 const { generateRandomString } = require('./generate-random-string');
 
 
@@ -22,6 +23,7 @@ app.get("/", (req,res) => {
 
 app.post("/login", (req,res) => {
   console.log(req.body);
+  // res.cookie('username','req.body.username',{path: '/login'});
   res.sendStatus(200);
 });
 
