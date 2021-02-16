@@ -20,6 +20,11 @@ app.get("/", (req,res) => {
   res.send("Hello!");
 });
 
+app.post("/login", (req,res) => {
+  console.log(req.body);
+  res.sendStatus(200);
+});
+
 app.get("/urls.json", (req, res) => {
   res.json(urlDatabase);
 });
@@ -61,7 +66,7 @@ app.post("/urls/:shortURL", (req, res) => {
   // }
   // console.log(templateVars);
   // console.log(urlDatabase);
-  urlDatabase[req.body.shortURL] = req.body.longURL;
+  urlDatabase[req.body.shortURL] = req.body.longURL; // req.params = :shortURL
   res.redirect(`/urls`);
 });
 
