@@ -18,11 +18,11 @@
       <div>
         <h1>Edit</h1>
       </div>
-      <form class="form-inline d-flex justify-content-center" action="/urls" method="POST">
+      <form class="form-inline d-flex justify-content-center" action="/urls/<%= shortURL %>" method="POST">
         <div class="form-group mb-2">New URL</div>
         <div class="form-group mx-sm-3 mb-2">
           <label for="longURL" class="sr-only">longURL</label>
-          <input type="text" class="form-control" id="longURLInput" placeholder="http://">
+          <input type="text" class="form-control" name="longURL" placeholder="http://">
         </div>
         <button type="submit" class="btn btn-primary mb-2">Submit</button>
       </form>
