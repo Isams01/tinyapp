@@ -50,10 +50,19 @@ app.get("/urls/:shortURL", (req, res) => {
   res.render("urls_show", templateVars);
 });
 
+
+// TODO add check for valid url
 app.post("/urls/:shortURL", (req, res) => {
   // const templateVars = { shortURL: req.params.shortURL, longURL: urlDatabase[req.params.shortURL] };
-  console.log(req.body)
-  res.redirect(`/urls/${req.body.shortURL}`);
+  // if (req.body.longURL.match(/http:\/\/www.*\.com/gm)) {
+  //   console.log("match found");
+  // } else {
+  //   res.redirect(`/urls`);
+  // }
+  // console.log(templateVars);
+  // console.log(urlDatabase);
+  urlDatabase[req.body.shortURL] = req.body.longURL;
+  res.redirect(`/urls`);
 });
 
 app.get("/u/:shortURL", (req, res) => {
