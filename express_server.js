@@ -47,7 +47,11 @@ app.get("/urls/:shortURL", (req, res) => {
 
 app.get("/u/:shortURL", (req, res) => {
   const longURL = urlDatabase[req.params.shortURL];
-  res.redirect(longURL);
+  if (longURL) {
+    res.redirect(longURL);
+  } else {
+    res.redirect('https://httpstatusdogs.com/304-not-modified')
+  }
 });
 
 app.get("/hello", (req, res) => {
