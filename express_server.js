@@ -7,6 +7,7 @@ const { generateRandomString } = require('./generate-random-string');
 
 
 app.use(bodyParser.urlencoded({extended: true}));
+app.use(cookieParser());
 app.set("view engine", "ejs");
 
 const urlDatabase = {
@@ -21,20 +22,36 @@ app.get("/", (req,res) => {
   res.send("Hello!");
 });
 
+
+
+
+
+
 app.post("/login", (req,res) => {
-  console.log(req.body);
-  // res.cookie('username','req.body.username',{path: '/login'});
-  res.sendStatus(200);
+  res.cookie('username',req.body.username);
+  res.redirect('/urls');
 });
+
+app.get("/logout", (req,res) => {
+  res.clearCookie('username', {path: '/'});
+  res.redirect('/urls');
+});
+
+
+
+
+
 
 app.get("/urls.json", (req, res) => {
   res.json(urlDatabase);
 });
 
 app.get("/urls", (req,res) => {
-  const templateVars = {urls: urlDatabase};
+  const templateVars = {
+    urls: urlDatabase,
+    username: req.cookies["username"]
+  };
   res.render("urls_index", templateVars);
-
 });
 
 app.post("/urls", (req, res) => {
@@ -83,5 +100,5 @@ app.get("/u/:shortURL", (req, res) => {
  
 
 app.listen(PORT, () => {
-  console.log(`Example app listening on pot ${PORT}`);
+  console.log(`Example app listening on port ${PORT}`);
 });
