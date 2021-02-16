@@ -25,6 +25,10 @@
           <tr>
             <td><%= url %></td>
             <td><%= urls[url] %></td>
+            <td><form class="flex-container" method="GET" action= <%= "/urls/" +  url %>> 
+                  <button type="submit" class="btn btn-outline-primary">Edit </button>
+                </form>
+            </td>
             <td><form class="flex-container" method="POST" action= <%= "/urls/" +  url  + "/delete" %>> 
                   <button name="shortURL" type="submit" value= <%= url %> class="btn btn-outline-danger">DELETE </button>
               </form>
