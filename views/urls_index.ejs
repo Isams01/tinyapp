@@ -40,10 +40,7 @@
       </table>
     </main>
   <% } else {%>
-    <div class="alert alert-danger" role="alert">
-      Please sign in to see URLs
-    </div>
-    <img src="https://i.imgur.com/4usULla.png">
+    <%- include('partials/_prompt') %>
   <% } %> 
   
   <!-- Bootstrap JS -->
