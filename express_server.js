@@ -15,18 +15,15 @@ const urlDatabase = {
   "9sm5xK": "http://www.google.com"
 };
 
-
-
-
 app.get("/", (req,res) => {
   res.send("Hello!");
 });
 
+/*
 
+    Login handlers
 
-
-
-
+*/
 app.post("/login", (req,res) => {
   res.cookie('username',req.body.username);
   res.redirect('/urls');
@@ -37,9 +34,11 @@ app.get("/logout", (req,res) => {
   res.redirect('/urls');
 });
 
-app.get("/urls.json", (req, res) => {
-  res.json(urlDatabase);
-});
+/*
+
+  /urls handlers
+
+*/
 
 app.get("/urls", (req,res) => {
   const templateVars = {
@@ -55,11 +54,13 @@ app.post("/urls", (req, res) => {
   res.redirect(`/urls/${shortURL}`);         // Respond with 'Ok' (we will replace this)
 });
 
+// delete url
 app.post("/urls/:shortURL/delete", (req, res) => {
   delete urlDatabase[req.params.shortURL];
   res.redirect(`/urls/`);         // Respond with 'Ok' (we will replace this)
 });
 
+// create new url page
 app.get("/urls/new", (req, res) => {
   const templateVars = { 
     urls: urlDatabase,
@@ -68,6 +69,7 @@ app.get("/urls/new", (req, res) => {
   res.render("urls_new", templateVars);
 });
 
+// show short url page
 app.get("/urls/:shortURL", (req, res) => {
   const templateVars = { 
     shortURL: req.params.shortURL, 
@@ -77,13 +79,14 @@ app.get("/urls/:shortURL", (req, res) => {
   res.render("urls_show", templateVars);
 });
 
-
+// add url
 // TODO add check for valid url
 app.post("/urls/:shortURL", (req, res) => {
   urlDatabase[req.body.shortURL] = req.body.longURL; // req.params = :shortURL
   res.redirect(`/urls`);
 });
 
+// go to the shorturl
 app.get("/u/:shortURL", (req, res) => {
   const longURL = urlDatabase[req.params.shortURL];
   if (longURL) {
