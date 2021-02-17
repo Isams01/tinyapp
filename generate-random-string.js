@@ -1,5 +1,4 @@
-function generateRandomString() {
-  const length = 6
+function generateRandomString(length) {
   let result = '';
   let characters = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789';
   let charactersLength = characters.length;

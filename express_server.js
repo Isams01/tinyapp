@@ -15,13 +15,28 @@ const urlDatabase = {
   "9sm5xK": "http://www.google.com"
 };
 
+const users = { 
+  "userRandomID": {
+    id: "userRandomID", 
+    email: "user@example.com", 
+    password: "purple-monkey-dinosaur"
+  },
+ "user2RandomID": {
+    id: "user2RandomID", 
+    email: "user2@example.com", 
+    password: "dishwasher-funk"
+  }
+}
+
+
+
 app.get("/", (req,res) => {
   res.send("Hello!");
 });
 
 /*
 
-    Login handlers
+    Login/logout handlers
 
 */
 app.post("/login", (req,res) => {
@@ -30,10 +45,41 @@ app.post("/login", (req,res) => {
 });
 
 app.get("/logout", (req,res) => {
-  res.clearCookie('username', {path: '/'});
+  res.clearCookie('user_id');
   res.redirect('/urls');
 });
 
+/*
+
+  Register handler
+
+*/
+
+app.get("/register", (req,res) => {
+  const id = req.cookies["user_id"]
+  const user = users[id];
+  const templateVars = { 
+    urls: urlDatabase,
+    username: user
+  };
+  res.render("user_registration", templateVars);
+});
+
+app.post("/register", (req, res) => {
+  const templateVars = { 
+    urls: urlDatabase,
+    username: req.cookies["username"] 
+  };
+  let randomID = generateRandomString(12);
+  users[randomID] = {
+    id: randomID,
+    email: req.body.email,
+    password: req.body.password
+  };
+  console.log(users[randomID]);
+  res.cookie('user_id', randomID);
+  res.redirect("/urls");
+});
 /*
 
   /urls handlers
@@ -41,15 +87,17 @@ app.get("/logout", (req,res) => {
 */
 
 app.get("/urls", (req,res) => {
-  const templateVars = {
+  const id = req.cookies["user_id"]
+  const user = users[id];
+  const templateVars = { 
     urls: urlDatabase,
-    username: req.cookies["username"]
+    username: user
   };
   res.render("urls_index", templateVars);
 });
 
 app.post("/urls", (req, res) => {
-  const shortURL = generateRandomString()
+  const shortURL = generateRandomString(6)
   urlDatabase[shortURL] = req.body.longURL;
   res.redirect(`/urls/${shortURL}`);         // Respond with 'Ok' (we will replace this)
 });
@@ -62,19 +110,23 @@ app.post("/urls/:shortURL/delete", (req, res) => {
 
 // create new url page
 app.get("/urls/new", (req, res) => {
+  const id = req.cookies["user_id"]
+  const user = users[id];
   const templateVars = { 
     urls: urlDatabase,
-    username: req.cookies["username"] 
+    username: user
   };
   res.render("urls_new", templateVars);
 });
 
 // show short url page
 app.get("/urls/:shortURL", (req, res) => {
+  const id = req.cookies["user_id"]
+  const user = users[id];
   const templateVars = { 
     shortURL: req.params.shortURL, 
     longURL: urlDatabase[req.params.shortURL],
-    username: req.cookies["username"]
+    username: user
   };
   res.render("urls_show", templateVars);
 });
