@@ -66,10 +66,6 @@ app.get("/register", (req,res) => {
 });
 
 app.post("/register", (req, res) => {
-  const templateVars = { 
-    urls: urlDatabase,
-    username: req.cookies["username"] 
-  };
   let randomID = generateRandomString(12);
   users[randomID] = {
     id: randomID,
