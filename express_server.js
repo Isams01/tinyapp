@@ -53,7 +53,6 @@ app.get("/login", (req, res) => {
 app.post("/login", (req, res) => {
   let loginStatus = false;
   let randomID = '';
-  console.log(req.body);
   for(const key in users) {
     if (users[key].email === req.body.email && users[key].password === req.body.password) {
       loginStatus = true;
@@ -64,7 +63,7 @@ app.post("/login", (req, res) => {
     res.cookie('user_id', randomID);
     res.redirect('/urls');
   } else {
-    res.sendStatus(400);
+    res.sendStatus(403);
   }
 });
 
