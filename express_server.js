@@ -67,14 +67,23 @@ app.get("/register", (req,res) => {
 
 app.post("/register", (req, res) => {
   let randomID = generateRandomString(12);
-  users[randomID] = {
-    id: randomID,
-    email: req.body.email,
-    password: req.body.password
-  };
-  console.log(users[randomID]);
-  res.cookie('user_id', randomID);
-  res.redirect("/urls");
+  let hasEmail = false;
+  for(const key in users) {
+    if (users[key].email === req.body.email) {
+      hasEmail = true;
+    }
+  }
+  if (req.body.email === '' || req.body.password === '' || hasEmail === true) {
+    res.sendStatus(400);
+  } else {
+    users[randomID] = {
+      id: randomID,
+      email: req.body.email,
+      password: req.body.password
+    };
+    res.cookie('user_id', randomID);
+    res.redirect("/urls");
+  }
 });
 /*
 
