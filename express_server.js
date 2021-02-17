@@ -37,11 +37,6 @@ app.get("/logout", (req,res) => {
   res.redirect('/urls');
 });
 
-
-
-
-
-
 app.get("/urls.json", (req, res) => {
   res.json(urlDatabase);
 });
@@ -61,30 +56,30 @@ app.post("/urls", (req, res) => {
 });
 
 app.post("/urls/:shortURL/delete", (req, res) => {
-  delete urlDatabase[req.body.shortURL];
+  delete urlDatabase[req.params.shortURL];
   res.redirect(`/urls/`);         // Respond with 'Ok' (we will replace this)
 });
 
 app.get("/urls/new", (req, res) => {
-  res.render("urls_new");
+  const templateVars = { 
+    urls: urlDatabase,
+    username: req.cookies["username"] 
+  };
+  res.render("urls_new", templateVars);
 });
 
 app.get("/urls/:shortURL", (req, res) => {
-  const templateVars = { shortURL: req.params.shortURL, longURL: urlDatabase[req.params.shortURL] };
+  const templateVars = { 
+    shortURL: req.params.shortURL, 
+    longURL: urlDatabase[req.params.shortURL],
+    username: req.cookies["username"]
+  };
   res.render("urls_show", templateVars);
 });
 
 
 // TODO add check for valid url
 app.post("/urls/:shortURL", (req, res) => {
-  // const templateVars = { shortURL: req.params.shortURL, longURL: urlDatabase[req.params.shortURL] };
-  // if (req.body.longURL.match(/http:\/\/www.*\.com/gm)) {
-  //   console.log("match found");
-  // } else {
-  //   res.redirect(`/urls`);
-  // }
-  // console.log(templateVars);
-  // console.log(urlDatabase);
   urlDatabase[req.body.shortURL] = req.body.longURL; // req.params = :shortURL
   res.redirect(`/urls`);
 });
