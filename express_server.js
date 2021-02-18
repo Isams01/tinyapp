@@ -4,9 +4,7 @@ const PORT = 8080;
 const bodyParser = require("body-parser");
 const cookieSession = require('cookie-session');
 const bcrypt = require('bcrypt');
-const { generateRandomString } = require('./generate-random-string');
-const { getUserUrls } = require('./getUserUrls');
-const { getUserByEmail } = require('./getUserByEmail');
+const { getUserUrls, getUserByEmail, generateRandomString } = require('./helpers');
 
 
 app.use(bodyParser.urlencoded({extended: true}));
