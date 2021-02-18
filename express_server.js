@@ -3,6 +3,7 @@ const app = express();
 const PORT = 8080;
 const bodyParser = require("body-parser");
 const cookieParser = require('cookie-parser');
+const bcrypt = require('bcrypt');
 const { generateRandomString } = require('./generate-random-string');
 const { getUserUrls } = require('./getUserUrls');
 
@@ -53,8 +54,10 @@ app.get("/login", (req, res) => {
 app.post("/login", (req, res) => {
   let loginStatus = false;
   let randomID = '';
+  const password = req.body.password;
+
   for(const key in users) {
-    if (users[key].email === req.body.email && users[key].password === req.body.password) {
+    if (users[key].email === req.body.email && bcrypt.compareSync(users[key].password, password)) {
       loginStatus = true;
       randomID = users[key].id;
     }
@@ -91,6 +94,7 @@ app.get("/register", (req, res) => {
 app.post("/register", (req, res) => {
   let randomID = generateRandomString(12);
   let hasEmail = false;
+  const hashedPassword = bcrypt.hashSync(re.body.password,10);
   for(const key in users) {
     if (users[key].email === req.body.email) {
       hasEmail = true;
@@ -102,7 +106,7 @@ app.post("/register", (req, res) => {
     users[randomID] = {
       id: randomID,
       email: req.body.email,
-      password: req.body.password
+      password: hashedPassword
     };
     res.cookie('user_id', randomID);
     res.redirect("/urls");
