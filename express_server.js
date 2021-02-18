@@ -12,8 +12,8 @@ app.use(cookieParser());
 app.set("view engine", "ejs");
 
 const urlDatabase = {
-  "b2xVn2": {longURL: "http://www.lighthouselabs.ca", userID: "origin"},
-  "9sm5xK": {longURL: "http://www.google.com", userID: "origin"}
+  "b2xVn2": {longURL: "http://www.lighthouselabs.ca", userID: "userRandomID"},
+  "9sm5xK": {longURL: "http://www.google.com", userID: "userRandomID"}
 };
 
 const users = { 
@@ -120,19 +120,14 @@ app.post("/register", (req, res) => {
 app.get("/urls", (req, res) => {
   const id = req.cookies["user_id"]
   const user = users[id];
-
+  let templateVars = {username: undefined, urls: undefined};
   if (user) {
     let urls = getUserUrls(urlDatabase, user);
-    console.log("user", user);
-    console.log("urls", urls)
-  } else {
-    const templateVars = { 
-      urls: urlDatabase,
+    templateVars = { 
+      urls: urls,
       username: user
-    };
+    }
   }
-  let templateVars = {urls: undefined,
-    username: user};
   res.render("urls_index", templateVars);
 });
 
@@ -145,8 +140,13 @@ app.post("/urls", (req, res) => {
 
 // delete url
 app.post("/urls/:shortURL/delete", (req, res) => {
-  delete urlDatabase[req.params.shortURL];
-  res.redirect(`/urls/`);         // Respond with 'Ok' (we will replace this)
+  const id = req.cookies["user_id"];
+  if (id) {
+    delete urlDatabase[req.params.shortURL];
+    res.redirect(`/urls/`);
+  } else {
+    res.sendStatus(404);
+  }
 });
 
 // create new url page
@@ -168,20 +168,34 @@ app.get("/urls/new", (req, res) => {
 app.get("/urls/:shortURL", (req, res) => {
   const id = req.cookies["user_id"]
   const user = users[id];
-  const templateVars = { 
-    shortURL: req.params.shortURL, 
-    longURL: urlDatabase[req.params.shortURL].longURL,
-    username: user
-  };
-  res.render("urls_show", templateVars);
+  let templateVars = {username: undefined, urls: undefined};
+  if (user) {
+    let urls = getUserUrls(urlDatabase, user);
+    if (!urls[req.params.shortURL]) {
+      res.sendStatus(404);
+    } else {
+      templateVars = {
+      shortURL: req.params.shortURL,
+      longURL: urls[req.params.shortURL].longURL,
+      username: user
+      }
+      res.render("urls_show", templateVars);
+    }
+  } else {
+    res.redirect('/urls');
+  }
 });
 
 // add url
 // TODO add check for valid url
 app.post("/urls/:shortURL", (req, res) => {
   const id = req.cookies["user_id"];
-  urlDatabase[req.body.shortURL] = {longURL: req.body.longURL, userID: id}; // req.params = :shortURL
-  res.redirect(`/urls`);
+  if (id) {
+    urlDatabase[req.body.shortURL] = {longURL: req.body.longURL, userID: id}; // req.params = :shortURL
+    res.redirect(`/urls`);
+  } else {
+    res.sendStatus(404);
+  }
 });
 
 // go to the shorturl
