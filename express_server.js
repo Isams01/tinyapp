@@ -6,6 +6,7 @@ const cookieSession = require('cookie-session');
 const bcrypt = require('bcrypt');
 const { generateRandomString } = require('./generate-random-string');
 const { getUserUrls } = require('./getUserUrls');
+const { getUserByEmail } = require('./getUserByEmail');
 
 
 app.use(bodyParser.urlencoded({extended: true}));
@@ -55,16 +56,11 @@ app.get("/login", (req, res) => {
 })
 
 app.post("/login", (req, res) => {
-  let loginStatus = false;
   let randomID = '';
   const password = req.body.password;
-  for(const key in users) {
-    if (users[key].email === req.body.email && bcrypt.compareSync(password, users[key].password)) {
-      loginStatus = true;
-      randomID = users[key].id;
-    }
-  }
-  if (loginStatus) {
+  const loginUser = getUserByEmail(req.body.email, users);
+  if (loginUser && bcrypt.compareSync(password, loginUser.password)) {
+    randomID = loginUser.id;
     req.session.user_id = randomID;
     res.redirect('/urls');
   } else {
@@ -95,14 +91,8 @@ app.get("/register", (req, res) => {
 
 app.post("/register", (req, res) => {
   let randomID = generateRandomString(12);
-  let hasEmail = false;
   const hashedPassword = bcrypt.hashSync(req.body.password,10);
-  for(const key in users) {
-    if (users[key].email === req.body.email) {
-      hasEmail = true;
-    }
-  }
-  if (req.body.email === '' || req.body.password === '' || hasEmail === true) {
+  if (req.body.email === '' || req.body.password === '' || getUserByEmail(req.body.email,users) !== null) {
     res.sendStatus(400);
   } else {
     users[randomID] = {
