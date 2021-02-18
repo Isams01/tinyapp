@@ -50,7 +50,11 @@ app.get("/login", (req, res) => {
     urls: urlDatabase,
     username: user
   };
-  res.render("user_login", templateVars);
+  if (id) {
+    res.redirect('/urls');
+  } else {
+    res.render("user_login", templateVars);
+  }
 })
 
 app.post("/login", (req, res) => {
@@ -84,13 +88,17 @@ app.get("/register", (req, res) => {
     urls: urlDatabase,
     username: user
   };
-  res.render("user_registration", templateVars);
+  if (id) {
+    res.redirect('/urls');
+  } else {
+    res.render("user_registration", templateVars);
+  }
 });
 
 app.post("/register", (req, res) => {
   let randomID = generateRandomString(12);
   const hashedPassword = bcrypt.hashSync(req.body.password,10);
-  if (req.body.email === '' || req.body.password === '' || getUserByEmail(req.body.email,users) !== null) {
+  if (req.body.email === '' || req.body.password === '' || getUserByEmail(req.body.email,users) !== undefined) {
     res.sendStatus(400);
   } else {
     users[randomID] = {
@@ -133,6 +141,7 @@ app.post("/urls", (req, res) => {
 });
 
 // delete url
+// check ownership
 app.post("/urls/:shortURL/delete", (req, res) => {
   const id = req.session.user_id;
   if (id) {
@@ -182,6 +191,18 @@ app.get("/urls/:shortURL", (req, res) => {
 
 // add url
 // TODO add check for valid url
+// if a URL for the given ID does not exist:
+
+//     (Minor) returns HTML with a relevant error message
+
+// if user is not logged in:
+
+//     returns HTML with a relevant error message
+
+// if user is logged it but does not own the URL with the given ID:
+
+//     returns HTML with a relevant error message
+
 app.post("/urls/:shortURL", (req, res) => {
   const id = req.session.user_id;
   if (id) {
@@ -194,9 +215,11 @@ app.post("/urls/:shortURL", (req, res) => {
 
 // go to the shorturl
 app.get("/u/:shortURL", (req, res) => {
-  const longURL = urlDatabase[req.params.shortURL].longURL;
-  if (longURL) {
-    res.redirect(longURL);
+  if(urlDatabase[req.params.shortURL]){
+    const longURL = urlDatabase[req.params.shortURL].longURL;
+    if (longURL) {
+      res.redirect(longURL);
+    } 
   } else {
     res.redirect('https://httpstatusdogs.com/304-not-modified')
   }

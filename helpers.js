@@ -14,7 +14,7 @@ const getUserByEmail = (email, users) => {
       return users[key];
     }
   }
-  return null;
+  return undefined;
 }
 
 function generateRandomString(length) {
