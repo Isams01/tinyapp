@@ -16,15 +16,15 @@
         <p class="card-text">Short URL: <a href="/u/<%= shortURL %>"><%= shortURL %></a></p>
       </div>
     <div class="card-footer text-muted">
-      <div>
+      <header>
         <h1>Edit</h1>
-      </div>
+      </header>
       <form class="form-inline d-flex justify-content-center" action="/urls/<%= shortURL %>" method="POST">
         <div class="form-group mb-2">New URL</div>
         <div class="form-group mx-sm-3 mb-2">
           <label for="longURL" class="sr-only">longURL</label>
           <input type = "hidden" name="shortURL" value=<%= shortURL %>>
-          <input type="text" class="form-control" name="longURL" placeholder="http://">
+          <input type="url" class="form-control" name="longURL" id="longURL" placeholder="http://" required>
         </div>
         <button type="submit" class="btn btn-primary mb-2">Submit</button>
       </form>
