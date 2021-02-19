@@ -35,7 +35,7 @@ const users = {
 
 
 app.get("/", (req, res) => {
-  res.send("Hello!");
+  res.redirect('/urls');
 });
 
 /*
@@ -58,15 +58,13 @@ app.get("/login", (req, res) => {
 })
 
 app.post("/login", (req, res) => {
-  let randomID = '';
   const password = req.body.password;
   const loginUser = getUserByEmail(req.body.email, users);
   if (loginUser && bcrypt.compareSync(password, loginUser.password)) {
-    randomID = loginUser.id;
-    req.session.user_id = randomID;
+    req.session.user_id = loginUser.id;
     res.redirect('/urls');
   } else {
-    res.sendStatus(403);
+    res.status(403).redirect(`/error/Incorrect password or username status code 403`);
   }
 });
 
@@ -98,8 +96,10 @@ app.get("/register", (req, res) => {
 app.post("/register", (req, res) => {
   let randomID = generateRandomString(12);
   const hashedPassword = bcrypt.hashSync(req.body.password,10);
-  if (req.body.email === '' || req.body.password === '' || getUserByEmail(req.body.email,users) !== undefined) {
-    res.sendStatus(400);
+  if (req.body.email === '' || req.body.password === '') {
+    res.status(400).redirect('/error/Please make sure to fill in all forms');
+  } else if (getUserByEmail(req.body.email,users) !== undefined) {
+    res.status(400).redirect('/error/That username is already take please choose something else'); 
   } else {
     users[randomID] = {
       id: randomID,
@@ -117,20 +117,19 @@ app.post("/register", (req, res) => {
 
 */
 
-// Only give access to urls that user has made
-// if (user[id] === urlDatabase[key].userID)
 app.get("/urls", (req, res) => {
   const id = req.session.user_id;
   const user = users[id];
-  let templateVars = {username: undefined, urls: undefined};
   if (user) {
     let urls = getUserUrls(urlDatabase, user);
-    templateVars = { 
+    const templateVars = { 
       urls: urls,
       username: user
     }
+    res.render("urls_index", templateVars);
+  } else {
+    res.redirect('/error/Please sign in first to see your URLS');
   }
-  res.render("urls_index", templateVars);
 });
 
 app.post("/urls", (req, res) => {
@@ -138,18 +137,6 @@ app.post("/urls", (req, res) => {
   const id = req.session.user_id;
   urlDatabase[shortURL] = {longURL: req.body.longURL, userID: id};
   res.redirect(`/urls/${shortURL}`);         // Respond with 'Ok' (we will replace this)
-});
-
-// delete url
-// check ownership
-app.post("/urls/:shortURL/delete", (req, res) => {
-  const id = req.session.user_id;
-  if (id) {
-    delete urlDatabase[req.params.shortURL];
-    res.redirect(`/urls/`);
-  } else {
-    res.sendStatus(404);
-  }
 });
 
 // create new url page
@@ -175,7 +162,7 @@ app.get("/urls/:shortURL", (req, res) => {
   if (user) {
     let urls = getUserUrls(urlDatabase, user);
     if (!urls[req.params.shortURL]) {
-      res.sendStatus(404);
+      res.status(404).redirect('/error/You are not allowed to access that url');
     } else {
       templateVars = {
       shortURL: req.params.shortURL,
@@ -189,19 +176,6 @@ app.get("/urls/:shortURL", (req, res) => {
   }
 });
 
-// add url
-// TODO add check for valid url
-// if a URL for the given ID does not exist:
-
-//     (Minor) returns HTML with a relevant error message
-
-// if user is not logged in:
-
-//     returns HTML with a relevant error message
-
-// if user is logged it but does not own the URL with the given ID:
-
-//     returns HTML with a relevant error message
 
 app.post("/urls/:shortURL", (req, res) => {
   const id = req.session.user_id;
@@ -209,9 +183,21 @@ app.post("/urls/:shortURL", (req, res) => {
     urlDatabase[req.body.shortURL] = {longURL: req.body.longURL, userID: id}; // req.params = :shortURL
     res.redirect(`/urls`);
   } else {
-    res.sendStatus(404);
+    res.sendStatus(403);
   }
 });
+
+app.post("/urls/:shortURL/delete", (req, res) => {
+  const id = req.session.user_id;
+  const userUrls = getUserUrls(urlDatabase,users[id]);
+  if (id && userUrls) {
+    delete urlDatabase[req.params.shortURL];
+    res.redirect(`/urls`);
+  } else {
+    res.sendStatus(403);
+  }
+});
+
 
 // go to the shorturl
 app.get("/u/:shortURL", (req, res) => {
@@ -221,10 +207,16 @@ app.get("/u/:shortURL", (req, res) => {
       res.redirect(longURL);
     } 
   } else {
-    res.redirect('https://httpstatusdogs.com/304-not-modified')
+    res.redirect('/error/That URL is not in our database');
   }
 });
  
+app.get("/error/:message", (req,res) => {
+  const id = req.session.user_id;
+  const user = users[id];
+  let templateVars = {username: undefined, urls: undefined, message: req.params.message};
+  res.render('error_page', templateVars);
+})
 
 app.listen(PORT, () => {
   console.log(`Example app listening on port ${PORT}`);
