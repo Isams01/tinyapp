@@ -64,7 +64,7 @@ app.post("/login", (req, res) => {
     req.session.user_id = loginUser.id;
     res.redirect("/urls");
   } else {
-    res.status(403).redirect("/error/Incorrect password or username status code 403");
+    res.status(403).redirect("/error?message=Incorrect password or username status code 403");
   }
 });
 
@@ -120,7 +120,6 @@ app.post("/register", (req, res) => {
 app.get("/urls", (req, res) => {
   const id = req.session.user_id;
   const user = users[id];
-  console.log(user);
   if (user) {
     let urls = getUserUrls(urlDatabase, user);
     const templateVars = { 
